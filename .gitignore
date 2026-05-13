@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Local release artifacts (don't commit zips — attach to GitHub Releases instead)
+*.zip
+dist/
+
+# Secrets — defense in depth; this repo should never contain any of these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+**/credentials.json
+**/secrets.json
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Node (in case anyone scripts release tooling later)
+node_modules/
