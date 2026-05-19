@@ -11,11 +11,10 @@ This file is the deep reference. The compact distillation lives in
 ## MCP tool inventory
 
 The `privco-data-mcp` server registers **17 tools** as of npm v1.3.3 (May
-2026), but **only 15 are currently usable** end-to-end — `funding_search`
-and `deal_search` are declared in the MCP package ahead of the
-corresponding API endpoints rolling out, so calls to them may return
-HTTP 404 until the backend catches up. The two rows for those tools
-below carry a ⚠️ marker; the rest of the inventory is live.
+2026). Two of them — `funding_search` and `deal_search` — are documented
+for forward compatibility and are **coming soon as expanded features**;
+those rows below are marked *(coming soon)*. The rest of the inventory is
+live today.
 
 Tools group naturally by usage stage:
 
@@ -67,7 +66,7 @@ entity, **escalate to `identification`** — that's the forgiving path.
 | Inputs | `name` (required) + many optional fuzzy hints: `dba`, `url`, `country`, `state`, `city`, `address`, `zip`, `phone`, `industry`, `social_facebook`, `social_linkedin`, `social_twitter`, `linkedin_url`, `classification`, `clean_name`, `fn` (formal name), `aka`, `reference_id`, `company_only`, `index` |
 | Matching strictness | **Flexible / tolerant of incomplete or fuzzy inputs.** More inputs = more signals to score against, but every field is optional. |
 | Output cardinality | Ranked list with **mapping-strength scores** on every row. Optional `threshold` query param (default 0.75) caps at low-confidence. |
-| Confidence info | `mapping_strength` (int 1–5), `matching_probability` (float 0–1), `score_total` (raw OpenSearch score), `name_similarity` (0–1), `leading_distance` (0–1), `match_summary` / `mismatch_summary` (human-readable strings), `mapping_strength_need_review` (`"Yes"` / `"No"`). |
+| Confidence info | `mapping_strength` (int 1–5), `matching_probability` (float 0–1), `score_total` (raw matching score), `name_similarity` (0–1), `leading_distance` (0–1), `match_summary` / `mismatch_summary` (human-readable strings), `mapping_strength_need_review` (`"Yes"` / `"No"`). |
 | Use when | The user has messy, partial, or fuzzy data (CRM dump, partner feed, prospect list), or you need a **probability** to gate downstream automation. |
 | Cost | One cheap call. |
 
@@ -85,7 +84,7 @@ Row shape:
   "mapping_strength": 4,                       // int 1-5; 4+ usually trustworthy
   "mapping_strength_need_review": "Yes",       // human-review flag
   "matching_probability": 0.176,               // float 0-1
-  "score_total": 783.446,                      // raw OpenSearch score
+  "score_total": 783.446,                      // raw matching score
   "name_similarity": 1,                        // 0-1
   "leading_distance": 0.5,                     // 0-1
   "match_summary": "Exact Name Match",
@@ -129,8 +128,8 @@ explicit signal to **not** auto-trust without human review.
 |------|---------|---------|
 | `company_search` | Multi-filter search across location, industry, keyword, revenue, valuation, funding, employees, growth, year founded, PE/VC inclusion | Up to 50 summary rows per page; max 129 pages on broad queries |
 | `people_search` | Equivalent for people/contacts | Summary rows |
-| `funding_search` ⚠️ | Round-centric search: filter by `fundingTypes` (13-token enum incl. `equity_funding_A`–`H`, `seed_angel`, `debt funding_financing`, etc.), `timestamp` (unix-ms range), `totalInUsd`, `industry`, `location`, `investorTypes`, `keyword`. `keyword.condition` REQUIRED. Sort by `companyName` / `timestamp` / `totalInUsd` / `fundingType`. **Source landed 2026-05-13, awaiting staging deploy → currently returns 404.** | Summary rows of funding rounds: `{id, companyName, companyUrl, timestamp, industryName, fundingType, roundDescription, totalInUsd, investors[], industryKeywords[]}` |
-| `deal_search` ⚠️ | M&A-deal-centric search: `query` (free-text on buyer/seller/target names), `timestamp`, `totalInUsd`, `buyersIndustries`, `sellersIndustries`, `targetsIndustries`, `targetsIndustryKeywords`, `isPeDeal`, `inclusionExclusion.{targetsIsPeBacked, targetsIsVcBacked}`, `buyersAllOfType` ∈ {Financial, Private, Public}, `location`. **`isPeDeal` SUPPRESSES `targetsIsPeBacked`/`targetsIsVcBacked`/`buyersAllOfType` when set.** Sort: `timestamp` only; default = relevance if `query` set, else `timestamp desc`. **Source landed 2026-05-13, awaiting staging deploy → currently returns 404.** | Summary rows of deals: `{id, timestamp, totalInUsd, targetIndustries[], buyers[{name,urlSlug}], targets[{name,urlSlug}]}`. `totalInUsd: "--"` (string) when missing. |
+| `funding_search` *(coming soon)* | Round-centric search: filter by `fundingTypes` (13-token enum incl. `equity_funding_A`–`H`, `seed_angel`, `debt funding_financing`, etc.), `timestamp` (unix-ms range), `totalInUsd`, `industry`, `location`, `investorTypes`, `keyword`. `keyword.condition` REQUIRED. Sort by `companyName` / `timestamp` / `totalInUsd` / `fundingType`. **Coming soon as an expanded feature.** | Summary rows of funding rounds: `{id, companyName, companyUrl, timestamp, industryName, fundingType, roundDescription, totalInUsd, investors[], industryKeywords[]}` |
+| `deal_search` *(coming soon)* | M&A-deal-centric search: `query` (free-text on buyer/seller/target names), `timestamp`, `totalInUsd`, `buyersIndustries`, `sellersIndustries`, `targetsIndustries`, `targetsIndustryKeywords`, `isPeDeal`, `inclusionExclusion.{targetsIsPeBacked, targetsIsVcBacked}`, `buyersAllOfType` ∈ {Financial, Private, Public}, `location`. **`isPeDeal` SUPPRESSES `targetsIsPeBacked`/`targetsIsVcBacked`/`buyersAllOfType` when set.** Sort: `timestamp` only; default = relevance if `query` set, else `timestamp desc`. **Coming soon as an expanded feature.** | Summary rows of deals: `{id, timestamp, totalInUsd, targetIndustries[], buyers[{name,urlSlug}], targets[{name,urlSlug}]}`. `totalInUsd: "--"` (string) when missing. |
 | `industry_keyword` | Autocomplete keyword IDs (used in `company_search.keyword.selection`) | Keyword id+name list |
 | `industry_pics` | List of PICS top-level industry codes | Industry id+name list |
 
@@ -293,31 +292,22 @@ pass. This matters when you need a row's `hash` to call
 
 ### 9. `deal_search.isPeDeal` suppresses sibling filters
 
-Documented at `api-nest/src/search/deal-search/docs.md` and intentionally
-ported from the PHP `Deal.php` source. Setting `filters.isPeDeal` (any
-boolean value) **suppresses**:
+Setting `filters.isPeDeal` (any boolean value) **suppresses**:
 
 - `inclusionExclusion.targetsIsPeBacked`
 - `inclusionExclusion.targetsIsVcBacked`
 - `buyersAllOfType`
 
-The precedence chain in source:
+The precedence is:
 
-1. `isPeDeal is not boolean` → apply `inclusionExclusion.*` and `buyersAllOfType`.
-2. `isPeDeal is boolean` AND no `targetsIsPeBacked` AND no `buyersAllOfType`
-   → emit `term: { is_pe_deal }`.
-3. `isPeDeal is not boolean` AND `buyersAllOfType` set → emit
-   `term: { buyers_same_type }`.
+1. `isPeDeal` is not boolean → apply `inclusionExclusion.*` and `buyersAllOfType`.
+2. `isPeDeal` is boolean AND no `targetsIsPeBacked` AND no `buyersAllOfType`
+   → `isPeDeal` takes effect.
+3. `isPeDeal` is not boolean AND `buyersAllOfType` is set → buyer-type
+   filter takes effect.
 
 So a request that includes both `isPeDeal` and `targetsIsPeBacked` is
 ambiguous and will silently drop one of them. Pick one per query.
-
-> **Behavioural change vs legacy PHP**: in the original PHP source
-> (`Deal.php:340`), the `is_pe_deal` filter was pushed into the wrong
-> array and never reached OpenSearch — making the flag a no-op. The
-> NestJS port fixes this. Clients that relied on the no-op behaviour
-> (e.g., "I'll pass `isPeDeal:true` but my real filter is
-> `targetsIsPeBacked`") will see different results once deployed.
 
 ### 10. `deal_search` default sort: relevance vs timestamp
 
@@ -342,11 +332,10 @@ input filter exists if you want to bound this at the source.
 
 ### 12. `funding_search` and `deal_search` permissions
 
-Both endpoints require the user's API key to carry the matching
-permission (`funding_search` or `deal_search`, or `everything`) — checked
-by `AuthGuard` + `getServiceAction` in `api-nest/src/auth/auth.util.ts`.
-A key without the permission returns 403 even after deploy. Coordinate
-with the API team if the staging key isn't already granted.
+Once released, both endpoints will require the user's API key to carry
+the matching permission (`funding_search` or `deal_search`, or
+`everything`). A key without the permission will return 403. Contact
+support@privco.com if your key needs these permissions added.
 
 ## What summary rows include vs. omit
 
@@ -398,7 +387,7 @@ Use this for population queries ("show me NY software companies with revenue
 > $1M"). Expect to filter and re-rank client-side after stage 3 since
 `latestRevenue` and `latestValuation` aren't sortable.
 
-### Workflow C — "Top N by valuation" workaround
+### Workflow C — "Top N by valuation" (two-stage pattern)
 
 ```
 1. company_search(filters: {latestValuation: {min: 1000000000}},
@@ -526,8 +515,9 @@ Notes:
 - On `deal_search`: omitting explicit `sorting` and being surprised that
   results aren't time-ordered (with `query` set the default is relevance,
   not timestamp)
-- Forgetting that `funding_search` / `deal_search` need a separate
-  permission on the API key — a generic key gets 403 even after deploy
+- Forgetting that `funding_search` / `deal_search` will require a
+  separate permission on the API key once released — a generic key
+  returns 403
 
 ## Auth & deployment
 

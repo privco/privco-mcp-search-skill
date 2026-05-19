@@ -42,7 +42,7 @@ skill. Each is documented in both `SKILL.md` (terse) and
 - `inclusionExclusion` is a requirement, not an addition
   (`{"pe": "include"}` means *must be* PE-backed).
 - `sorting.field` enum is small — `latestValuation`, `latestRevenue`, and
-  `latestEbitda` are **not** sortable; documented two-stage workaround.
+  `latestEbitda` are **not** sortable; documented two-stage pattern.
 - `revenue.includeMissing` quietly changes result composition.
 - `keyword.condition` is **required** when the `keyword` filter is used
   (values `"should"` / `"must"`).
@@ -67,18 +67,17 @@ skill. Each is documented in both `SKILL.md` (terse) and
   entity for full enrichment).
 - **Filter-criteria candidate discovery**: `industry_keyword →
   company_search → profile()` per candidate.
-- **Top-N-by-valuation two-stage workaround** (the API filters by
+- **Top-N-by-valuation two-stage pattern** (the API filters by
   valuation but doesn't sort by it).
 - **Recent-funding queries** with caveats about `latestFundingYear` vs
   cumulative `funding.min`.
 
-### Known issues
+### Coming soon
 
-- `funding_search` and `deal_search` are declared in the MCP package
-  ahead of the corresponding backend rollout. Calls to these two tools
-  may return HTTP 404 until the backend catches up. Approximate via
-  `company_search` with funding/deal filters + per-candidate `vc_deals`
-  / `ma_deals` in the meantime.
-- Both tools, once live, require the API key to carry the matching
-  permission (`funding_search` / `deal_search`, or `everything`) — a key
-  with generic auth alone will get HTTP 403.
+- `funding_search` and `deal_search` are documented for forward
+  compatibility and will be released as expanded features. Until then,
+  approximate via `company_search` with funding/deal filters +
+  per-candidate `vc_deals` / `ma_deals`.
+- Once released, both tools will require the API key to carry the
+  matching permission (`funding_search` / `deal_search`, or
+  `everything`).

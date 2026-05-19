@@ -11,7 +11,7 @@ When activated, the skill briefs Claude on:
 - **All 17 PrivCo MCP tools** (as of `privco-data-mcp` v1.3.3) grouped by stage (entity resolution → discovery → enrichment → contact reveal) so Claude reaches for the right tool, including the deliberate distinction between strict `match` and fuzzy/scored `identification`.
 - **The filter-semantics gotchas** that silently break queries — full state name required, `industry` vs `keyword` vocabulary split, `inclusionExclusion` semantics, the small `sorting.field` enum, `revenue.includeMissing` behavior, `keyword.condition` requirement, lowercase `profileType` path param, `people_search` Company-only default, `deal_search.isPeDeal` precedence trap, and more.
 - **Summary-row gaps** — which fields `company_search` omits and require a follow-up `profile()` call.
-- **Standard workflows** — named-entity lookup, criteria-driven discovery, "top N by valuation" two-stage workaround, recent-funding queries.
+- **Standard workflows** — named-entity lookup, criteria-driven discovery, "top N by valuation" two-stage pattern, recent-funding queries.
 - **Field-shape gotchas** — VARCHAR dollar strings, split-VARCHAR dates, deduping aggregated investor arrays.
 
 ## Auto-activation triggers

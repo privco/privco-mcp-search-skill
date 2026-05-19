@@ -4,7 +4,7 @@ description: >
   Use the PrivCo MCP tools (`mcp__privco-data-mcp__*`) correctly for company /
   people / funding queries. Covers the non-obvious filter semantics (full state
   name, industry vs keyword, sorting enum, summary-row gaps, includeMissing),
-  the standard match → profile → vc_deals workflow, and the two-stage workaround
+  the standard match → profile → vc_deals workflow, and the two-stage pattern
   for "top N by valuation". Activate when the user wants to search/filter
   PrivCo data, look up a specific company, or build a multi-entity dataset.
   Trigger phrases: "find companies that…", "search PrivCo for…", "who are the
@@ -20,18 +20,16 @@ Full per-tool field reference: see `references/usage_guide.md` in this skill fol
 The bullets below are the high-value-per-line distillation — load them once,
 do not re-derive by trial and error.
 
-## Tool inventory (17 tools declared in v1.3.3, 15 currently usable)
+## Tool inventory (17 tools)
 
 All tools are exposed under the `mcp__privco-data-mcp__*` namespace once the
 MCP server is registered (see `INSTALL.md`).
 
-> ⚠️ **`funding_search` and `deal_search` are documented for forward
-> compatibility but may return HTTP 404 against the PrivCo API as of skill
-> v1.3.3** — the corresponding backend endpoints are rolling out. Treat
-> these tools as documented-but-unavailable; until they're live,
-> approximate via `company_search` + per-candidate `vc_deals` / `ma_deals`.
-> Calls also require the API key to carry the `funding_search` /
-> `deal_search` permission once endpoints are live.
+> **Coming soon as expanded features:** `funding_search` and `deal_search`
+> are documented below for forward compatibility but are not yet generally
+> available. Until they're released, approximate via `company_search` +
+> per-candidate `vc_deals` / `ma_deals`. Once released, calls will require
+> the API key to carry the `funding_search` / `deal_search` permission.
 
 **Stage 1 — entity resolution (name/details → profile_id)**
 
@@ -82,20 +80,19 @@ entity, retry with `identification` — it's the more forgiving path.
   valuation, funding, employees, growth, year founded, PE/VC inclusion). Up to
   50 summary rows per page.
 - `people_search` — equivalent for contacts.
-- `funding_search` ⚠️ **api-nest source landed 2026-05-13, awaiting staging
-  deploy — still returns 404.** Round-centric search (fundingTypes, total,
-  timestamp, industry, location, investor types, keyword). Use once
-  deployed when the question is *about rounds* rather than *about
-  companies*. Same gotchas as `company_search`: `keyword.condition` is
-  required (`"should"` / `"must"`). Until deploy, approximate via
-  `company_search` (with funding filters) + per-candidate `vc_deals`.
-- `deal_search` ⚠️ **api-nest source landed 2026-05-13, awaiting staging
-  deploy — still returns 404.** M&A-deal-centric search (target/buyer/seller
-  industries, deal value, query, isPeDeal, target PE/VC-backed flags).
-  **Filter precedence quirk**: setting `isPeDeal` (any boolean) SUPPRESSES
+- `funding_search` *(coming soon)* — Round-centric search (fundingTypes,
+  total, timestamp, industry, location, investor types, keyword). Use when
+  the question is *about rounds* rather than *about companies*. Same
+  gotchas as `company_search`: `keyword.condition` is required (`"should"`
+  / `"must"`). Until released, approximate via `company_search` (with
+  funding filters) + per-candidate `vc_deals`.
+- `deal_search` *(coming soon)* — M&A-deal-centric search
+  (target/buyer/seller industries, deal value, query, isPeDeal, target
+  PE/VC-backed flags). **Filter precedence quirk**: setting `isPeDeal` (any
+  boolean) SUPPRESSES
   `inclusionExclusion.targetsIsPeBacked`/`targetsIsVcBacked`/`buyersAllOfType`
   — don't mix. Default sort: relevance if `query` set, else `timestamp desc`.
-  Until deploy, approximate via `company_search` + per-candidate `ma_deals`.
+  Until released, approximate via `company_search` + per-candidate `ma_deals`.
 - `industry_keyword` — autocomplete for keyword IDs (use before `keyword`
   filter when unsure).
 - `industry_pics` — list of PICS top-level industry codes.
@@ -204,13 +201,12 @@ GET /profile/company/44612
 `'company' | 'investor' | 'advisor'`. Affects `profile`, `general_profile`,
 `people`, `vc_deals`, `ma_deals`. The MCP handlers don't normalize casing.
 
-### 8. `deal_search.isPeDeal` SUPPRESSES sibling filters (when deployed)
+### 8. `deal_search.isPeDeal` SUPPRESSES sibling filters
 
 Setting `filters.isPeDeal` to any boolean **silently disables**
 `inclusionExclusion.targetsIsPeBacked`, `inclusionExclusion.targetsIsVcBacked`,
-and `buyersAllOfType` in the same request. The precedence rule is documented
-in `api-nest/src/search/deal-search/docs.md` and intentionally ported from
-the legacy PHP. Pick one approach per query:
+and `buyersAllOfType` in the same request. The precedence is intentional —
+pick one approach per query:
 
 - Want *only* PE deals? → `{"isPeDeal": true}` (alone).
 - Want deals where the *target* is PE-backed? → omit `isPeDeal`, use
@@ -264,7 +260,7 @@ ma_deals(profileType="company", profileId=78)   → M&A history
 3. For each candidate of interest → profile(id) for dollar fields
 ```
 
-### C. "Top N by valuation" workaround (two-stage)
+### C. "Top N by valuation" (two-stage pattern)
 
 ```
 1. company_search(filters: {latestValuation: {min: 1000000000}},

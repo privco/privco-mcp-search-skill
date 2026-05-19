@@ -125,8 +125,8 @@ through — re-check the `env` block.
 | 401 / 403 on every call | API key missing or wrong | Verify `PRIVCO_API_KEY` is set in the server's `env` block; restart client |
 | `command not found: privco-data-mcp` | Global npm bin not on PATH | Use the `npx` form instead, or add the npm global bin dir to `PATH` |
 | `Cannot find module` errors | Node version too old | Upgrade to Node.js ≥ 18 |
-| Tools time out | Network egress blocked | The server connects to `https://api-staging.privco.com/v3` by default — confirm outbound HTTPS is allowed |
-| Need a different base URL | Want to hit a non-default PrivCo endpoint | Set `PRIVCO_API_BASE_URL` in the same `env` block alongside `PRIVCO_API_KEY` (e.g. `"PRIVCO_API_BASE_URL": "https://api.privco.com/v3"`). Optional; defaults to staging |
+| Tools time out | Network egress blocked | The server connects to PrivCo's API over HTTPS — confirm outbound HTTPS is allowed |
+| Need a different base URL | Want to point at a non-default PrivCo endpoint | Set `PRIVCO_API_BASE_URL` in the same `env` block alongside `PRIVCO_API_KEY` (e.g. `"PRIVCO_API_BASE_URL": "https://api.privco.com/v3"`). Optional; uses the default PrivCo API endpoint when unset |
 
 ## Security notes
 
