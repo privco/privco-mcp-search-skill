@@ -175,10 +175,10 @@ Response shape (PII fields shown as `<redacted>` for documentation):
 {
   "data": {
     "hash": "<the same hash you passed in>",
-    "id": 92597754,
+    "id": 10000001,
     "yearLastSeen": "2025",
-    "firstName": "Chris",
-    "lastName": "Conklin",
+    "firstName": "Jane",                  // example values — fictional
+    "lastName": "Doe",
     "jobTitles": ["Regional Vice President"],
     "seniorityLevel": "Vp",
     "department": "Sales",
@@ -189,7 +189,7 @@ Response shape (PII fields shown as `<redacted>` for documentation):
     "directNumbers": [],
     "mobileNumbers": ["<redacted>"],
     "personalLinkedin": "<redacted>",
-    "companyName": "Unite Us"             // or "investorName" for investor_contact
+    "companyName": "Databricks, Inc."     // or "investorName" for investor_contact
   },
   "meta": { "call": "company_contact", "status": "success", "current_time": 1778692429873 }
 }
