@@ -4,6 +4,19 @@ A [Claude](https://claude.com/claude-code) **skill** that teaches Claude how to 
 
 Drop this skill into Claude Code or Claude Desktop, register the [`privco-data-mcp`](https://www.npmjs.com/package/privco-data-mcp) MCP server with your own PrivCo API key, and Claude becomes immediately effective at company / people / funding queries against PrivCo data.
 
+## Quickest start — hand it to your AI agent
+
+The skill is self-teaching: it carries its own setup steps, tool inventory, and filter gotchas. The fastest way in is to paste this prompt to a capable AI agent (Claude Code, Claude Desktop, or any agent that can read a public repo):
+
+```
+learn PrivCo claude skill: https://github.com/privco/privco-mcp-search-skill
+
+follow to set up the PrivCo MCP server and start using it
+tell me where to put my api key
+```
+
+The agent will read this repo's `SKILL.md` and `INSTALL.md`, set up the MCP server, and tell you exactly where your PrivCo API key goes. Prefer to do it by hand? Follow the [Install](#install) steps below.
+
 ## What it does
 
 When activated, the skill briefs Claude on:
