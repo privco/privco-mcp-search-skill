@@ -248,11 +248,10 @@ fetching profiles for the top candidates.
 ### 5. `revenue.includeMissing` quietly changes result composition
 
 Setting `includeMissing: true` includes companies with null/empty revenue —
-common for early-stage AI companies (Reflection AI, Thinking Machines Lab,
-xAI all have `latestRevenue: null` in their PrivCo records). When testing
-"revenue > X" assertions, leave it **false** (default) and explicitly pull
-missing-revenue companies via a separate query when you need negative
-controls.
+common for early-stage, pre-revenue, and stealth companies, which often have
+`latestRevenue: null` in their records. When testing "revenue > X" assertions,
+leave it **false** (default) and explicitly pull missing-revenue companies via
+a separate query when you need negative controls.
 
 ### 6. `keyword.condition` is required whenever the `keyword` filter is used
 

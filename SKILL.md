@@ -172,8 +172,8 @@ N by valuation" workflows, see Workflow C below.
 ### 5. `revenue.includeMissing` quietly changes result composition
 
 `includeMissing: true` includes companies with null/empty revenue — common for
-early-stage AI companies (Reflection AI, Thinking Machines Lab, xAI all have
-`latestRevenue: null`). When testing "revenue > X" assertions, leave it
+early-stage, pre-revenue, and stealth companies, which often have
+`latestRevenue: null`. When testing "revenue > X" assertions, leave it
 **false** (default).
 
 ### 6. `keyword.condition` is required whenever `keyword` filter is used
