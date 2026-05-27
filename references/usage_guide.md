@@ -97,7 +97,7 @@ Row shape:
   "mapped_profile_state": "CA",
   "mapped_profile_country": "US",
   "mapped_profile_address": "354 Oyster Point Boulevard",
-  "mapped_reference_id": "Crunchbase:stripe|BuiltIn:stripe|...",
+  "mapped_reference_id": "EIN:12-3456789|CIK:0001234567|...",
   // ... plus mapped_parent_company, mapped_clean_name, etc.
 }
 ```
