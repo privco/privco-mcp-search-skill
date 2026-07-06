@@ -14,16 +14,19 @@ description: >
 
 # PrivCo MCP Search
 
-Setup / install: see `INSTALL.md` in this skill folder.
+Setup / access (remote connector or local npm server): see `INSTALL.md` in this skill folder.
 Full per-tool field reference: see `references/usage_guide.md` in this skill folder.
+Dashboard presentation template: see `references/dashboard_prompt.md` in this skill folder.
 
 The bullets below are the high-value-per-line distillation — load them once,
 do not re-derive by trial and error.
 
 ## Tool inventory (17 tools)
 
-All tools are exposed under the `mcp__privco-data-mcp__*` namespace once the
-MCP server is registered (see `INSTALL.md`).
+All tools are exposed under the `mcp__<server-name>__*` namespace once the
+MCP server is registered — `mcp__privco-data-mcp__*` in the standard setup;
+a remote connector carries whatever name it was registered under (see
+"Access & auth" below and `INSTALL.md`).
 
 > **Coming soon as expanded features:** `funding_search` and `deal_search`
 > are documented below for forward compatibility but are not yet generally
@@ -69,11 +72,17 @@ and **whether they tell you how confident the match is**. Pick deliberately.
   `clean_name`, `fn` (formal/legal name), `aka`, `reference_id`,
   `company_only`.
 
-**Decision rule**: clean recognizable name/URL → start with `match`. Messy
-external data (CRM dump, prospect list, partner feed) or you need a
-confidence number to gate downstream automation → use `identification`.
-If `match` returns 0 or visibly-wrong rows for what should be a known
-entity, retry with `identification` — it's the more forgiving path.
+**Decision rule — when in doubt, prefer `identification`.** It is the full
+entity-resolution engine: fuzzy and tolerant, accepts many combinable
+signals beyond name/website, and returns a confidence score you can act
+on. Use it whenever the input is fuzzy, partial, or from an external
+source (CRM dump, prospect list, partner feed), when you hold extra
+signals (address, phone, LinkedIn URL, reference ID), or when downstream
+automation must gate on confidence. Reserve `match` for the quick first
+try on a clean, recognizable name/URL — it matches on name/website ONLY,
+strictly, and reports no confidence. **Always fall through to
+`identification` when `match` returns 0 or visibly-wrong rows** — a
+`match` miss does not mean the entity is absent from PrivCo.
 
 **Stage 2 — discovery (criteria → candidate list)**
 - `company_search` — multi-filter (location, industry, keyword, revenue,
@@ -312,12 +321,33 @@ confirm with `vc_deals` round dates.
 - Track coverage in an explicit matrix doc so the fixture set can be
   re-validated when the assertion list changes.
 
-## Auth & deployment
+## Presenting company data — the dashboard template
 
-- The MCP server reads `PRIVCO_API_KEY` from its environment (set in the MCP
-  client config — see `INSTALL.md`).
-- It connects to the PrivCo v3 API and sends the key as the `x-api-key`
-  header.
+When the user wants a company's data **presented** (a dashboard, one-pager,
+or visual intelligence view) rather than answered in prose, use the
+ready-made template in `references/dashboard_prompt.md`. It chains the
+standard Workflow A data pull (`match → profile → financials → vc_deals /
+ma_deals → people`) into a single HTML dashboard widget: header + 6 metric
+cards + revenue/headcount charts + valuation range + financial/profile/
+funding tables, with the PrivCo house style rules (CSS variables, Chart.js
+conventions, sentence case). Follow its data-mapping notes — they encode the
+same field-shape gotchas listed above.
+
+## Access & auth — two transports, same 17 tools
+
+- **Remote connector (recommended):** PrivCo-hosted endpoint at
+  `https://mcp.privco.com/mcp` (MCP Streamable HTTP). Auth is OAuth 2.1 —
+  the user signs in with their PrivCo account in a browser; no API key in
+  any config. Works in claude.ai, Claude Desktop, Claude Code
+  (`claude mcp add --transport http`), ChatGPT (developer mode), and any
+  spec-compliant client. Requires API access enabled on the PrivCo account.
+- **Local server (npm `privco-data-mcp`, stdio):** reads `PRIVCO_API_KEY`
+  from its environment (set in the MCP client config) and sends it to the
+  PrivCo v3 API as the `x-api-key` header. For automation/CI or key-based
+  setups.
+- Tool names and schemas are identical on both; only the client-visible
+  prefix differs (it carries whatever server/connector name was registered).
+- Full setup steps + troubleshooting for both paths: `INSTALL.md`.
 - For the full per-tool field reference, common pitfalls in one-line form, and
   expanded workflow detail, see `references/usage_guide.md` in this skill
   folder.

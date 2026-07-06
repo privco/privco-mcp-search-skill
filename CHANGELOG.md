@@ -9,6 +9,45 @@ inventory, gotchas, and workflows.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Date format is `YYYY-MM-DD`.
 
+## [1.4.0] — 2026-07-04
+
+Remote-connector release. The PrivCo MCP server is now reachable two ways;
+the skill documents both.
+
+> Skill versions no longer track the `privco-data-mcp` npm package version:
+> this release documents the hosted remote connector, which is live
+> independently of the npm release cadence.
+
+### Added
+
+- **Remote connector documentation** — the hosted PrivCo MCP endpoint at
+  `https://mcp.privco.com/mcp` (MCP Streamable HTTP + OAuth 2.1 sign-in
+  with a PrivCo account; no API key in config files). `INSTALL.md` is
+  restructured around the remote-vs-local choice with per-client steps
+  for claude.ai, Claude Desktop, Claude Code, and ChatGPT (developer
+  mode), plus a transport-aware troubleshooting table.
+- **`references/dashboard_prompt.md`** — PrivCo's house company
+  intelligence dashboard template: the standard `match → profile →
+  financials → vc_deals/ma_deals → people` pull rendered as a single
+  HTML dashboard widget (metric cards, revenue/headcount charts,
+  valuation range bar, financial/profile/funding tables), with style
+  rules and PrivCo-specific data-mapping notes. `SKILL.md` points to it
+  for "present this company" requests.
+- `SKILL.md` "Access & auth" section covering both transports and the
+  tool-name-prefix note (same 17 tools either way).
+
+### Changed
+
+- The `match` vs `identification` decision rule now leads with **"when in
+  doubt, prefer `identification`"** — the fuzzy, multi-signal,
+  confidence-scored resolver — reserving `match` for the quick first try
+  on clean, recognizable names/websites, and mandating the fall-through
+  when `match` returns zero or wrong-looking rows.
+- README quick-start prompt now **installs** the skill persistently
+  (`git clone` into `~/.claude/skills/`) instead of just reading it into
+  one session's context, and prefers the remote connector when no API
+  key is provided.
+
 ## [1.3.3] — 2026-05-13
 
 Initial public release. Matches the `privco-data-mcp@1.3.3` npm package.

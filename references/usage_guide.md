@@ -10,8 +10,10 @@ This file is the deep reference. The compact distillation lives in
 
 ## MCP tool inventory
 
-The `privco-data-mcp` server registers **17 tools** as of npm v1.3.3 (May
-2026). Two of them — `funding_search` and `deal_search` — are documented
+The PrivCo MCP server registers **17 tools** — the same inventory whether
+you use the hosted remote connector (`https://mcp.privco.com/mcp`, OAuth)
+or the local `privco-data-mcp` npm server (see `../INSTALL.md` for both
+paths). Two of them — `funding_search` and `deal_search` — are documented
 for forward compatibility and are **coming soon as expanded features**;
 those rows below are marked *(coming soon)*. The rest of the inventory is
 live today.
@@ -520,10 +522,11 @@ Notes:
 
 ## Auth & deployment
 
-- The `privco-data-mcp` server reads `PRIVCO_API_KEY` from its environment
-  and exits if missing.
-- It connects to the PrivCo v3 API and sends the key as the `x-api-key`
-  header.
-- Installation and MCP-client registration: see `../INSTALL.md`.
+- **Remote connector** (`https://mcp.privco.com/mcp`): OAuth sign-in with
+  your PrivCo account — no key to manage.
+- **Local server**: `privco-data-mcp` reads `PRIVCO_API_KEY` from its
+  environment and exits if missing; it connects to the PrivCo v3 API and
+  sends the key as the `x-api-key` header.
+- Setup and MCP-client registration for both paths: see `../INSTALL.md`.
 - Package source: <https://www.npmjs.com/package/privco-data-mcp>
 - Support: support@privco.com — API documentation: <https://www.privco.com/api-documentation>
