@@ -9,6 +9,37 @@ inventory, gotchas, and workflows.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Date format is `YYYY-MM-DD`.
 
+## [1.4.1] — 2026-07-07
+
+Consolidation release. The `privco-data-mcp` server (v1.4.0) now ships the
+deep reference and the guided workflows **inside its own MCP contract** — the
+`privco://docs/overview` + `privco://docs/usage-guide` resources and five
+built-in prompts (`company_dashboard`, `research_company`,
+`discover_companies_by_criteria`, `top_companies_by_valuation`,
+`recent_funding_query`). The skill's bundled copies were redundant and had
+already drifted stale, so they are removed in favor of the server's
+single-source, always-current versions.
+
+### Removed
+
+- **`references/usage_guide.md`** — superseded by the server's
+  `privco://docs/usage-guide` resource, which is the corrected version:
+  the bundled copy still marked `funding_search`/`deal_search` "coming
+  soon" (they are live), described a non-existent `identification`
+  `threshold` parameter, and carried a self-contradictory "top N by
+  valuation" workflow (fixed in the resource to use `vc_deals`).
+- **`references/dashboard_prompt.md`** — superseded by the server's
+  `company_dashboard` prompt (same house dashboard design, and it also
+  handles a company *name* input, not just a domain).
+
+### Changed
+
+- `SKILL.md` and `README.md` now point at the server's `privco://docs/*`
+  resources and built-in prompts instead of the removed bundled files.
+- `SKILL.md` de-staled: `funding_search` and `deal_search` are documented
+  as **live but permission-gated** (require the matching or `everything`
+  API permission; a key without it returns 403) rather than "coming soon".
+
 ## [1.4.0] — 2026-07-04
 
 Remote-connector release. The PrivCo MCP server is now reachable two ways;

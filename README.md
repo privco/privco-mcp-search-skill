@@ -40,7 +40,7 @@ When activated, the skill briefs Claude on:
 - **Summary-row gaps** — which fields `company_search` omits and require a follow-up `profile()` call.
 - **Standard workflows** — named-entity lookup, criteria-driven discovery, "top N by valuation" two-stage pattern, recent-funding queries.
 - **Field-shape gotchas** — VARCHAR dollar strings, split-VARCHAR dates, deduping aggregated investor arrays.
-- **A dashboard presentation template** ([`references/dashboard_prompt.md`](./references/dashboard_prompt.md)) — PrivCo's house design for presenting a company's data as a single HTML intelligence dashboard (metric cards, revenue/headcount charts, valuation range, financial tables).
+- **Guided workflow prompts** — the skill points at the MCP server's built-in prompts (`company_dashboard`, `research_company`, `discover_companies_by_criteria`, `top_companies_by_valuation`, `recent_funding_query`) and the fetchable `privco://docs/*` reference resources, rather than bundling its own copies. `company_dashboard` renders a company's data as a single HTML intelligence dashboard (metric cards, revenue/headcount charts, valuation range, financial tables) in PrivCo's house style.
 
 ## Auto-activation triggers
 
@@ -122,20 +122,23 @@ Claude will call `mcp__privco-data-mcp__match`, then `profile` / `vc_deals`, and
 privco-mcp-search-skill/
 ├── SKILL.md                  # the skill itself — auto-loaded
 ├── INSTALL.md                # full setup guide (remote connector + local npm)
-├── references/
-│   ├── usage_guide.md        # deep per-tool reference, all gotchas, workflows
-│   └── dashboard_prompt.md   # company intelligence dashboard template
 ├── CHANGELOG.md              # per-version changes
 ├── README.md                 # this file
 ├── LICENSE                   # MIT
 └── .gitignore
 ```
 
+The deep per-tool reference and the guided workflow prompts (including the
+company dashboard) now live in the `privco-data-mcp` server's own contract —
+the `privco://docs/overview` + `privco://docs/usage-guide` resources and the
+built-in prompts — so they stay in lockstep with the tools and reach every
+MCP client, not just skill-aware ones. `SKILL.md` points at them.
+
 ## Updating
 
 The skill mirrors knowledge discovered while using PrivCo's API in real-world queries. If you find a new gotcha or a missing workflow, open an issue or PR.
 
-When the upstream [`privco-data-mcp`](https://www.npmjs.com/package/privco-data-mcp) npm package adds new tools or changes input schemas, both `SKILL.md` and `references/usage_guide.md` need updating.
+When the upstream [`privco-data-mcp`](https://www.npmjs.com/package/privco-data-mcp) MCP server adds new tools or changes input schemas, update `SKILL.md`; the deep per-tool reference and workflow prompts live in the server's own contract (`privco://docs/*` resources + built-in prompts), so they travel with the server release.
 
 ## License
 

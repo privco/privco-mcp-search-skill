@@ -15,8 +15,8 @@ description: >
 # PrivCo MCP Search
 
 Setup / access (remote connector or local npm server): see `INSTALL.md` in this skill folder.
-Full per-tool field reference: see `references/usage_guide.md` in this skill folder.
-Dashboard presentation template: see `references/dashboard_prompt.md` in this skill folder.
+Full per-tool field reference: read the `privco://docs/usage-guide` resource from the MCP server (and `privco://docs/overview`) — the server ships the canonical, always-current reference in its own contract.
+Guided workflows (present a dashboard, research a company, discover by criteria, top-N-by-valuation, recent funding): invoke the MCP server's built-in **prompts** — `company_dashboard`, `research_company`, `discover_companies_by_criteria`, `top_companies_by_valuation`, `recent_funding_query`. The distilled workflow sketches below mirror them for always-on steering.
 
 The bullets below are the high-value-per-line distillation — load them once,
 do not re-derive by trial and error.
@@ -28,11 +28,11 @@ MCP server is registered — `mcp__privco-data-mcp__*` in the standard setup;
 a remote connector carries whatever name it was registered under (see
 "Access & auth" below and `INSTALL.md`).
 
-> **Coming soon as expanded features:** `funding_search` and `deal_search`
-> are documented below for forward compatibility but are not yet generally
-> available. Until they're released, approximate via `company_search` +
-> per-candidate `vc_deals` / `ma_deals`. Once released, calls will require
-> the API key to carry the `funding_search` / `deal_search` permission.
+> **Permission-gated tools:** `funding_search` and `deal_search` are live,
+> but require the API key to carry the matching `funding_search` /
+> `deal_search` permission (or `everything`) — a key without it returns 403.
+> If you lack the permission, approximate via `company_search` +
+> per-candidate `vc_deals` / `ma_deals`.
 
 **Stage 1 — entity resolution (name/details → profile_id)**
 
@@ -89,19 +89,17 @@ strictly, and reports no confidence. **Always fall through to
   valuation, funding, employees, growth, year founded, PE/VC inclusion). Up to
   50 summary rows per page.
 - `people_search` — equivalent for contacts.
-- `funding_search` *(coming soon)* — Round-centric search (fundingTypes,
-  total, timestamp, industry, location, investor types, keyword). Use when
-  the question is *about rounds* rather than *about companies*. Same
-  gotchas as `company_search`: `keyword.condition` is required (`"should"`
-  / `"must"`). Until released, approximate via `company_search` (with
-  funding filters) + per-candidate `vc_deals`.
-- `deal_search` *(coming soon)* — M&A-deal-centric search
-  (target/buyer/seller industries, deal value, query, isPeDeal, target
-  PE/VC-backed flags). **Filter precedence quirk**: setting `isPeDeal` (any
-  boolean) SUPPRESSES
+- `funding_search` — Round-centric search (fundingTypes, total, timestamp,
+  industry, location, investor types, keyword). Use when the question is
+  *about rounds* rather than *about companies*. Same gotchas as
+  `company_search`: `keyword.condition` is required (`"should"` / `"must"`).
+  Requires the `funding_search` (or `everything`) API permission.
+- `deal_search` — M&A-deal-centric search (target/buyer/seller industries,
+  deal value, query, isPeDeal, target PE/VC-backed flags). **Filter
+  precedence quirk**: setting `isPeDeal` (any boolean) SUPPRESSES
   `inclusionExclusion.targetsIsPeBacked`/`targetsIsVcBacked`/`buyersAllOfType`
   — don't mix. Default sort: relevance if `query` set, else `timestamp desc`.
-  Until released, approximate via `company_search` + per-candidate `ma_deals`.
+  Requires the `deal_search` (or `everything`) API permission.
 - `industry_keyword` — autocomplete for keyword IDs (use before `keyword`
   filter when unsure).
 - `industry_pics` — list of PICS top-level industry codes.
@@ -321,17 +319,16 @@ confirm with `vc_deals` round dates.
 - Track coverage in an explicit matrix doc so the fixture set can be
   re-validated when the assertion list changes.
 
-## Presenting company data — the dashboard template
+## Presenting company data — the dashboard prompt
 
 When the user wants a company's data **presented** (a dashboard, one-pager,
-or visual intelligence view) rather than answered in prose, use the
-ready-made template in `references/dashboard_prompt.md`. It chains the
-standard Workflow A data pull (`match → profile → financials → vc_deals /
-ma_deals → people`) into a single HTML dashboard widget: header + 6 metric
-cards + revenue/headcount charts + valuation range + financial/profile/
-funding tables, with the PrivCo house style rules (CSS variables, Chart.js
-conventions, sentence case). Follow its data-mapping notes — they encode the
-same field-shape gotchas listed above.
+or visual intelligence view) rather than answered in prose, invoke the MCP
+server's built-in **`company_dashboard`** prompt. It chains the standard
+Workflow A data pull (`match → profile → financials → vc_deals / ma_deals →
+people`) into a single HTML dashboard widget: header + 6 metric cards +
+revenue/headcount charts + valuation range + financial/profile/funding
+tables, with the PrivCo house style rules (CSS variables, Chart.js
+conventions, sentence case) and the same field-shape gotchas listed above.
 
 ## Access & auth — two transports, same 17 tools
 
@@ -349,8 +346,8 @@ same field-shape gotchas listed above.
   prefix differs (it carries whatever server/connector name was registered).
 - Full setup steps + troubleshooting for both paths: `INSTALL.md`.
 - For the full per-tool field reference, common pitfalls in one-line form, and
-  expanded workflow detail, see `references/usage_guide.md` in this skill
-  folder.
+  expanded workflow detail, read the `privco://docs/usage-guide` resource from
+  the MCP server — the canonical, always-current reference in the contract.
 
 ## When this skill applies — and when not
 
