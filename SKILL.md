@@ -349,6 +349,37 @@ conventions, sentence case) and the same field-shape gotchas listed above.
   expanded workflow detail, read the `privco://docs/usage-guide` resource from
   the MCP server — the canonical, always-current reference in the contract.
 
+## When a tool returns an error
+
+Errors come back as `isError: true` with a JSON body. Since `privco-data-mcp`
+1.5.0 that body is classified, so branch on the fields rather than the prose:
+
+```json
+{ "success": false, "error": "<message>", "status": 401,
+  "code": "unauthorized", "retryable": false }
+```
+
+- `unauthorized` (401/403) — stop and tell the user. Bad key, out-of-term
+  subscription, or a missing per-endpoint grant (`funding_search` and
+  `deal_search` need one). **Never retry**; it cannot succeed.
+- `rate_limited` (429) — back off, then retry. If the allowance is exhausted
+  rather than throttled it stays 429 until the period resets.
+- `bad_request` (4xx) — the message relays the API's own validation text. Fix
+  the arguments; do not retry unchanged.
+- `not_found` (404) — re-run entity resolution instead of retrying.
+- `upstream_error` (5xx) / `timeout` / `network_error` — transient, one retry
+  is reasonable.
+
+Two traps:
+
+- **Before 1.5.0 every failure returned one fixed string** (`"Match request
+  failed"` and its per-tool siblings), so an invalid key looked exactly like a
+  throttle or a 500. On an older server, do not infer the cause from the text.
+- **A successful `tools/list` does not mean the credentials are valid.** The
+  catalogue is served to any request carrying a credential header, real or
+  not, on both the local and remote transports. The first real tool call is
+  the authentication check.
+
 ## When this skill applies — and when not
 
 **Apply** when the user is doing entity lookup, criteria-driven discovery,
