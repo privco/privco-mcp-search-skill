@@ -38,7 +38,7 @@ When activated, the skill briefs Claude on:
 - **All 17 PrivCo MCP tools** grouped by stage (entity resolution → discovery → enrichment → contact reveal) so Claude reaches for the right tool, including the deliberate distinction between strict `match` and fuzzy/scored `identification`.
 - **The filter-semantics gotchas** that silently break queries — full state name required, `industry` vs `keyword` vocabulary split, `inclusionExclusion` semantics, the small `sorting.field` enum, `revenue.includeMissing` behavior, `keyword.condition` requirement, lowercase `profileType` path param, `people_search` Company-only default, `deal_search.isPeDeal` precedence trap, and more.
 - **Summary-row gaps** — which fields `company_search` omits and require a follow-up `profile()` call.
-- **Standard workflows** — named-entity lookup, criteria-driven discovery, "top N by valuation" two-stage pattern, recent-funding queries.
+- **Standard workflows** — named-entity lookup, criteria-driven discovery, "top N by valuation" (direct valuation sort), recent-funding queries.
 - **Field-shape gotchas** — VARCHAR dollar strings, split-VARCHAR dates, deduping aggregated investor arrays.
 - **Guided workflow prompts** — the skill points at the MCP server's built-in prompts (`company_dashboard`, `research_company`, `discover_companies_by_criteria`, `top_companies_by_valuation`, `recent_funding_query`) and the fetchable `privco://docs/*` reference resources, rather than bundling its own copies. `company_dashboard` renders a company's data as a single HTML intelligence dashboard (metric cards, revenue/headcount charts, valuation range, financial tables) in PrivCo's house style.
 
