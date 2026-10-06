@@ -9,6 +9,16 @@ inventory, gotchas, and workflows.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Date format is `YYYY-MM-DD`.
 
+## [1.5.0] — 2026-10-06
+
+### Changed
+- `company_search` sorts by `revenue`, `valuation` and `latestFundingYear` (PrivCo API, 2026-10-06).
+  Workflow C ("top N by valuation") now sorts by valuation directly; the `totalFunding` proxy and the
+  client-side re-rank are gone. The valuation sort counts only valuations from the last 3 years unless
+  `filters.latestValuation.ignoreLimit` is true.
+- An unknown sort field is ignored (default order) instead of a 400.
+- Each search page costs one API point.
+
 ## [1.4.1] — 2026-07-07
 
 Consolidation release. The `privco-data-mcp` server (v1.4.0) now ships the

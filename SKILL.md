@@ -4,8 +4,8 @@ description: >
   Use the PrivCo MCP tools (`mcp__privco-data-mcp__*`) correctly for company /
   people / funding queries. Covers the non-obvious filter semantics (full state
   name, industry vs keyword, sorting enum, summary-row gaps, includeMissing),
-  the standard match → profile → vc_deals workflow, and the two-stage pattern
-  for "top N by valuation". Activate when the user wants to search/filter
+  the standard match → profile → vc_deals workflow, and "top N by valuation"
+  (sort by valuation directly). Activate when the user wants to search/filter
   PrivCo data, look up a specific company, or build a multi-entity dataset.
   Trigger phrases: "find companies that…", "search PrivCo for…", "who are the
   X companies in Y", "look up <company> in PrivCo", "valuations for…", "build
@@ -168,13 +168,19 @@ first when unsure.
 restrictive filters quickly empties the result set — drop one filter at a time
 when debugging zero-result queries.
 
-### 4. `sorting.field` enum is small
+### 4. `sorting.field` enum
 
 Valid: `name | state | employee | industry | yearFounded | totalFunding |
-revenueGrowthRate1 | revenueGrowthRate3 | hasContact`.
+revenueGrowthRate1 | revenueGrowthRate3 | hasContact | revenue | valuation |
+latestFundingYear` (`revenue`, `valuation`, `latestFundingYear` since
+2026-10-06). Companies without the value always sort last. An unknown field
+is ignored and the default order is used — no error, so check the spelling.
 
-**Not sortable**: `latestValuation`, `latestRevenue`, `latestEbitda`. For "top
-N by valuation" workflows, see Workflow C below.
+`valuation` counts only valuations dated in the last 3 years (like the
+valuation filter); add `ignoreLimit: true` inside `filters.latestValuation`
+to rank older ones too. **Not sortable**: `latestEbitda`.
+
+Each search page costs one API point.
 
 ### 5. `revenue.includeMissing` quietly changes result composition
 
@@ -267,17 +273,18 @@ ma_deals(profileType="company", profileId=78)   → M&A history
 3. For each candidate of interest → profile(id) for dollar fields
 ```
 
-### C. "Top N by valuation" (two-stage pattern)
+### C. "Top N by valuation"
 
 ```
 1. company_search(filters: {latestValuation: {min: 1000000000}},
-                  sorting: {field: "totalFunding", order: "desc"})
-2. Take top ~50 (totalFunding correlates roughly with valuation tier)
-3. profile() each → real latestValuation
-4. Sort client-side by latestValuation desc, take top N
+                  sorting: {field: "valuation", order: "desc"})
+   → the row order IS the ranking; keep the first N
+2. vc_deals() for those N only → last round's valuation + date to display
+   (summary rows omit the figure; `profile` has no latestValuation)
 ```
 
-The API can filter by valuation but not sort by it.
+Only valuations from the last 3 years count; add `ignoreLimit: true` inside
+`latestValuation` to include older ones.
 
 ### D. Recent funding ("raised >X in year Y")
 
