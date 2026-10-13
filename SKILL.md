@@ -59,14 +59,16 @@ and **whether they tell you how confident the match is**. Pick deliberately.
   *"I have messy, partial, or fuzzy fields from an external source — give
   me the best mapping with a probability so I can decide whether to trust
   it."* POST endpoint to `/identification/company`. Each result row carries:
-  - `mapping_strength` — integer 1–5 (higher = stronger). `mapping_strength_need_review: "Yes"` flags rows that should be human-reviewed before being trusted.
-  - `matching_probability` — float 0–1 (raw confidence).
+  - `mapped_profile_id` / `mapped_profile_type` — the PrivCo record to fetch next.
+  - `mapping_strength` — integer 0–10: **5+ strong, 3–4 weak**. Only rows at 3+
+    are returned; **an empty list means no match** (there is no "New" row).
   - `match_summary` / `mismatch_summary` — human-readable strings explaining
-    *why* the engine scored it that way (e.g. `"Exact Name Match"` /
-    `"Reference ID Mismatch|Phone Mismatch"`).
-  - Optional `threshold` query param (default 0.75) filters out
-    low-confidence candidates server-side.
-  Inputs (all optional except `name`): `name`, `dba`, `url`, `country`,
+    *why* the engine scored it that way (e.g. `"URL Domain Match|Clean Name Match"` /
+    `"Phone Mismatch"`).
+  - Profile context: name, URL, parent, classification, industry (`mapped_pic`),
+    address, city, state, zip, country, phone.
+  Each lookup that returns a match is charged points (never a unique profile).
+  Inputs (all optional, but send `name` or `url`): `name`, `dba`, `url`, `country`,
   `state`, `city`, `address`, `zip`, `phone`, `industry`, `social_facebook`,
   `social_linkedin`, `social_twitter`, `linkedin_url`, `classification`,
   `clean_name`, `fn` (formal/legal name), `aka`, `reference_id`,
