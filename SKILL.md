@@ -368,11 +368,16 @@ Errors come back as `isError: true` with a JSON body. Since `privco-data-mcp`
   "code": "unauthorized", "retryable": false }
 ```
 
-- `unauthorized` (401/403) — stop and tell the user. Bad key, out-of-term
-  subscription, or a missing per-endpoint grant (`funding_search` and
-  `deal_search` need one). **Never retry**; it cannot succeed.
-- `rate_limited` (429) — back off, then retry. If the allowance is exhausted
-  rather than throttled it stays 429 until the period resets.
+- `quota_exceeded` (403, since `privco-data-mcp` 1.6.2) — an allowance is used
+  up. The message names it (unique profiles, points, financial or deal calls),
+  how much is used, the limit and the reset date. Tell the user exactly that;
+  **never retry** and never call it a key problem: the key is valid.
+- `subscription_expired` (403, 1.6.2) — the account's API subscription is out
+  of term; the message gives the start or end date. Stop and tell the user.
+- `unauthorized` (401/403) — stop and tell the user. Bad or missing key, or a
+  missing per-endpoint grant (`funding_search` and `deal_search` need one).
+  **Never retry**; it cannot succeed.
+- `rate_limited` (429) — a throttle. Back off, then retry.
 - `bad_request` (4xx) — the message relays the API's own validation text. Fix
   the arguments; do not retry unchanged.
 - `not_found` (404) — re-run entity resolution instead of retrying.
