@@ -21,7 +21,7 @@ Guided workflows (present a dashboard, research a company, discover by criteria,
 The bullets below are the high-value-per-line distillation — load them once,
 do not re-derive by trial and error.
 
-## Tool inventory (17 tools)
+## Tool inventory (18 tools)
 
 All tools are exposed under the `mcp__<server-name>__*` namespace once the
 MCP server is registered — `mcp__privco-data-mcp__*` in the standard setup;
@@ -105,10 +105,25 @@ strictly, and reports no confidence. **Always fall through to
 - `industry_keyword` — autocomplete for keyword IDs (use before `keyword`
   filter when unsure).
 - `industry_pics` — list of PICS top-level industry codes.
+- `company_similar` — companies similar to ONE company (`profileId`, optional
+  `limit`). **Use it for every "like / similar to / peers of / comparable to"
+  ask instead of composing `company_search` filters yourself.**
+  - **Peers first** (`source: "peer"`, up to 10, peer score + `reasons`).
+  - **Then criteria rows** (`source: "criteria"`): industry + keywords, then
+    size, with the state used only to narrow, aimed at 10–100. They are ranked
+    by description similarity, then industry + keywords, and each carries
+    `similarity`, `match` and `reasons`.
+  - **To page or refine:** pass `meta.criteria.filters` as `filters` to
+    `company_search`. `meta.ladder` shows how the set was narrowed or widened.
+  - **Caveats:** criteria rows are US-HQ only; one search point per call.
 
 **Stage 3 — enrichment (profile_id → full record)**
 - `profile` — full **company** profile (revenue, employees, funding, founders,
-  contacts, investors, competitors, subsidiaries).
+  contacts, investors, competitors, subsidiaries, and `similar_companies`: up
+  to 10 algorithmic peers with `score` + `reasons`).
+  - `competitors` is the editorial list, and most companies have none.
+  - `similar_companies` covers ~98 % of companies.
+  - For a longer, ranked list, call `company_similar`.
 - `general_profile` — full profile for **non-company** entities (Investor,
   Person, etc.). Use when `profile_type != "Company"` from `match`.
 - `people` — execs & board on a company.
@@ -339,7 +354,7 @@ revenue/headcount charts + valuation range + financial/profile/funding
 tables, with the PrivCo house style rules (CSS variables, Chart.js
 conventions, sentence case) and the same field-shape gotchas listed above.
 
-## Access & auth — two transports, same 17 tools
+## Access & auth — two transports, same 18 tools
 
 - **Remote connector (recommended):** PrivCo-hosted endpoint at
   `https://mcp.privco.com/mcp` (MCP Streamable HTTP). Auth is OAuth 2.1 —
