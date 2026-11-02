@@ -12,7 +12,7 @@ Drop this skill into Claude Code or Claude Desktop, connect the PrivCo MCP serve
 | Auth | OAuth — sign in with your PrivCo account | `PRIVCO_API_KEY` env var |
 | Clients | claude.ai, Claude Desktop, Claude Code, ChatGPT | Claude Code, Claude Desktop, any stdio client |
 
-Both expose the same 17 tools. Full steps for each: [`INSTALL.md`](./INSTALL.md).
+Both expose the same 18 tools. Full steps for each: [`INSTALL.md`](./INSTALL.md).
 
 ## Quickest start — hand it to your AI agent
 
@@ -35,7 +35,7 @@ The agent will clone the skill into your skills directory (so it auto-activates 
 
 When activated, the skill briefs Claude on:
 
-- **All 17 PrivCo MCP tools** grouped by stage (entity resolution → discovery → enrichment → contact reveal) so Claude reaches for the right tool, including the deliberate distinction between strict `match` and fuzzy/scored `identification`.
+- **All 18 PrivCo MCP tools** grouped by stage (entity resolution → discovery → enrichment → contact reveal) so Claude reaches for the right tool, including the deliberate distinction between strict `match` and fuzzy/scored `identification`.
 - **The filter-semantics gotchas** that silently break queries — full state name required, `industry` vs `keyword` vocabulary split, `inclusionExclusion` semantics, the small `sorting.field` enum, `revenue.includeMissing` behavior, `keyword.condition` requirement, lowercase `profileType` path param, `people_search` Company-only default, `deal_search.isPeDeal` precedence trap, and more.
 - **Summary-row gaps** — which fields `company_search` omits and require a follow-up `profile()` call.
 - **Standard workflows** — named-entity lookup, criteria-driven discovery, "top N by valuation" (direct valuation sort), recent-funding queries.

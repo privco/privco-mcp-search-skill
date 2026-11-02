@@ -12,7 +12,7 @@ ways to connect**:
 | Requires | A PrivCo account with API access enabled | A PrivCo API key + Node.js ≥ 18 |
 | Best for | Most users — nothing to install, no key to manage | Automation, CI, air-gapped configs, or when you prefer key-based auth |
 
-Both expose the **same 17 tools** with identical names and schemas.
+Both expose the **same 18 tools** with identical names and schemas.
 
 - **To get API access turned on, a plan, or an API key** → contact <sales@privco.com>.
 - **For technical setup help or troubleshooting** → contact <support@privco.com>.
@@ -67,7 +67,7 @@ No API key ever touches your config files.
      supports dynamic client registration)
 3. Click **Add**, then **Connect** — a PrivCo sign-in page opens. Sign in
    and approve.
-4. In a chat, enable the connector via the tools/connectors menu. The 17
+4. In a chat, enable the connector via the tools/connectors menu. The 18
    PrivCo tools are now available.
 
 ### Claude Code (CLI)
@@ -233,7 +233,7 @@ Ask Claude something like:
 If the tools are wired up, Claude will call `match`, then `profile` /
 `vc_deals`, and return the answer.
 
-> **Tool-name note:** the 17 tools are identical on both transports. The
+> **Tool-name note:** the 18 tools are identical on both transports. The
 > full tool id your client shows is prefixed with the server/connector name
 > you registered — e.g. `mcp__privco-data-mcp__match` in Claude Code, or
 > under whatever name you gave the connector in claude.ai.

@@ -9,6 +9,15 @@ inventory, gotchas, and workflows.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Date format is `YYYY-MM-DD`.
 
+## [1.6.0] — 2026-11-02
+
+### Added
+
+- **`company_similar`** (18 tools): the tool for "similar to / peers of" asks. It returns peers first, then
+  criteria rows ranked by description similarity, then industry + keywords, and `meta.criteria.filters` feeds
+  `company_search`. Needs `privco-data-mcp` with the tool (next release after 1.6.2).
+- `profile` / `general_profile` carry `similar_companies` (up to 10 peers with `score` + `reasons`).
+
 ## [1.5.0] — 2026-10-06
 
 ### Changed
