@@ -4,10 +4,12 @@ description: >
   Use the PrivCo MCP tools (`mcp__privco-data-mcp__*`) correctly for company /
   people / funding queries. Covers the non-obvious filter semantics (full state
   name, industry vs keyword, sorting enum, summary-row gaps, includeMissing),
-  the standard match → profile → vc_deals workflow, and "top N by valuation"
-  (sort by valuation directly). Activate when the user wants to search/filter
-  PrivCo data, look up a specific company, or build a multi-entity dataset.
-  Trigger phrases: "find companies that…", "search PrivCo for…", "who are the
+  the standard match → profile → vc_deals workflow, "describe → search_intent →
+  target search" for lists asked in words, and "top N by valuation" (sort by
+  valuation directly). Activate when the user wants to search/filter PrivCo
+  data, look up a specific company, or build a multi-entity dataset.
+  Trigger phrases: "build a list of…", "find companies that…", "search PrivCo
+  for…", "who works at these companies", "who are the
   X companies in Y", "look up <company> in PrivCo", "valuations for…", "build
   a fixture / dataset of companies matching…".
 ---
@@ -21,7 +23,7 @@ Guided workflows (present a dashboard, research a company, discover by criteria,
 The bullets below are the high-value-per-line distillation — load them once,
 do not re-derive by trial and error.
 
-## Tool inventory (18 tools)
+## Tool inventory (19 tools)
 
 All tools are exposed under the `mcp__<server-name>__*` namespace once the
 MCP server is registered — `mcp__privco-data-mcp__*` in the standard setup;
@@ -87,10 +89,30 @@ strictly, and reports no confidence. **Always fall through to
 `match` miss does not mean the entity is absent from PrivCo.
 
 **Stage 2 — discovery (criteria → candidate list)**
+- `search_intent` — **call it FIRST when the user describes a list in words**
+  ("build a list of PE-owned software companies in Texas founded after 2005").
+  Input: `text` (the request as the user said it, 3–500 characters). Returns
+  `target` (which search tool to call: `company_search`, `people_search`,
+  `deal_search`, `funding_search`, or `null`) and `request` (the body for that
+  tool, `{filters}`), plus `applied` (what was understood), `not_applied`
+  (words no filter covers), `dropped_filters` (filters that target does not
+  accept), optional `name_matches` (`[{id, name}]`: the text may be a company
+  name) and optional `note`. Costs API points per call, like a search.
+  - Then call `target` with `request.filters` as `filters`; add `page` /
+    `sorting` as needed.
+  - **Always tell the user every item in `not_applied` and
+    `dropped_filters`**: the results are not narrowed by them.
+  - `target: null` → nothing was understood, or the entity has no search
+    (investors; read `note`): build the filters by hand (Workflow B).
 - `company_search` — multi-filter (location, industry, keyword, revenue,
   valuation, funding, employees, growth, year founded, PE/VC inclusion). Up to
   50 summary rows per page.
-- `people_search` — equivalent for contacts.
+- `people_search` — equivalent for contacts. `filters.associatedIds` takes
+  1–500 PrivCo company ids (from `match` `profile_id`, `identification`
+  `mapped_profile_id`, or `company_search` row `id`) and returns the people at
+  those companies — the way to go from a company list to its people.
+  Investor-associated contacts never match it; an empty or over-500 list
+  returns 400.
 - `funding_search` — Round-centric search (fundingTypes, total, timestamp,
   industry, location, investor types, keyword). Use when the question is
   *about rounds* rather than *about companies*. Same gotchas as
@@ -266,6 +288,20 @@ round-trips when planning multi-candidate work** — a 22-company dataset is
 
 ## Practical workflows
 
+### 0. List described in words (start here)
+
+```
+1. search_intent(text="PE-owned software companies in Texas founded after 2005")
+   → {target: "company_search", request: {filters: {...}}, not_applied: [...], dropped_filters: [...]}
+2. company_search(filters=request.filters, page=1, sorting=...)   ← the tool named by `target`
+3. Tell the user not_applied + dropped_filters (they did not narrow the list)
+4. Refine by hand if asked: add a keyword (industry_keyword), widen a range, re-sort
+```
+
+If `target` is `null`, fall back to Workflow B. To list the people at the
+companies found: `people_search(filters={associatedIds: [<company ids>]})`
+(up to 500 ids per call), then reveal only the rows you need.
+
 ### A. Named-entity lookup
 
 ```
@@ -277,7 +313,9 @@ ma_deals(profileType="company", profileId=78)   → M&A history
 
 3–4 calls per entity for full enrichment.
 
-### B. Filter-criteria discovery
+### B. Filter-criteria discovery (by hand)
+
+Use when `search_intent` returns `target: null`, or to adjust its filters.
 
 ```
 1. industry_keyword(query="fintech")    → keyword id (if using id-based filter)
@@ -354,7 +392,7 @@ revenue/headcount charts + valuation range + financial/profile/funding
 tables, with the PrivCo house style rules (CSS variables, Chart.js
 conventions, sentence case) and the same field-shape gotchas listed above.
 
-## Access & auth — two transports, same 18 tools
+## Access & auth — two transports, same 19 tools
 
 - **Remote connector (recommended):** PrivCo-hosted endpoint at
   `https://mcp.privco.com/mcp` (MCP Streamable HTTP). Auth is OAuth 2.1 —
