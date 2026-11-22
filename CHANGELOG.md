@@ -9,6 +9,18 @@ inventory, gotchas, and workflows.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Date format is `YYYY-MM-DD`.
 
+## [Unreleased]
+
+### Added
+
+- **`search_intent`** (19 tools): turns a list request in plain words into a ready search. Call it first for
+  any list described in words, then call the tool named by `target` with `request`; always report
+  `not_applied` and `dropped_filters`; build filters by hand when `target` is null. New Workflow 0
+  ("describe → search_intent → target → refine") and the trigger phrase "build a list of…". Needs a
+  `privco-data-mcp` release with the tool.
+- `people_search` `filters.associatedIds`: people at 1–500 known PrivCo companies (ids from `match`,
+  `identification` or `company_search`); investor contacts never match it.
+
 ## [1.6.0] — 2026-11-02
 
 ### Added
