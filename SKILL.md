@@ -3,7 +3,8 @@ name: privco-mcp-search-skill
 description: >
   Use the PrivCo MCP tools (`mcp__privco-data-mcp__*`) correctly for company /
   people / funding queries. Covers the non-obvious filter semantics (full state
-  name, industry vs keyword, sorting enum, summary-row gaps, includeMissing),
+  name, industry vs keyword, sorting enum, summary-row gaps, includeMissing,
+  no-longer-operating companies included by default),
   the standard match → profile → vc_deals workflow, "describe → search_intent →
   target search" for lists asked in words, and "top N by valuation" (sort by
   valuation directly). Activate when the user wants to search/filter PrivCo
@@ -270,6 +271,24 @@ When `sorting` is omitted: response is ordered by **relevance scoring** if
 `filters.query` is set, otherwise by `timestamp desc`. Explicit `sorting`
 always wins. Pass `{"sorting": {"field": "timestamp", "order": "desc"}}`
 when you want deterministic ordering regardless of query presence.
+
+### 10. `company_search` includes companies that no longer operate
+
+By default `company_search` returns dissolved companies (`closed`) and
+companies integrated into their buyer (`absorbed`). PrivCo's web search
+leaves them out by default, so the two counts differ unless you exclude them.
+When the user wants operating companies (most lists: prospects, targets,
+"companies that…"), add:
+
+```json
+{"ownership": {"current": {"exclude": ["closed", "absorbed"]}}}
+```
+
+Skip it when the request names an Only owner (`current.only`: one owner per
+company, so it adds nothing) or asks about history (acquired, PE-acquired,
+bankruptcy, formerly …): those answers rightly include companies that have
+since closed. `search_intent` does not add it; add it to its `request` when
+it applies.
 
 ## Summary rows: included vs omitted
 
