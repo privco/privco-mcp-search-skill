@@ -13,6 +13,8 @@ Date format is `YYYY-MM-DD`.
 
 ### Added
 
+- Gotcha 10: `company_search` includes no-longer-operating companies (`closed` /
+  `absorbed`) by default, unlike the web search; exclude them for operating-company lists.
 - **`search_intent`** (19 tools): turns a list request in plain words into a ready search. Call it first for
   any list described in words, then call the tool named by `target` with `request`; always report
   `not_applied` and `dropped_filters`; build filters by hand when `target` is null. New Workflow 0
